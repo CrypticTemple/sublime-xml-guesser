@@ -1,0 +1,13 @@
+{
+	"check_magic": false,
+	"check_magic_command": "/usr/bin/file",
+	"check_magic_sgml_ok": true,
+	"check_parser": true,
+	"check_xml_declaration": true,
+	"check_xml_declaration_lines": 3,
+	"syntax_file": "Packages/XML/XML.tmLanguage",
+	"syntaxes_to_check":
+	[
+		"Plain text.tmLanguage"
+	]
+}

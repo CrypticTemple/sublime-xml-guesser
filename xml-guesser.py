@@ -11,38 +11,33 @@ try:
 except:
 	pass
 
-SETTINGS = 'xml-guesser'
-DEFAULTS = {
-	'check_xml_declaration': True,
-	'check_xml_declaration_lines': 3,
-	'check_magic': False,
-	'check_magic_command': '/usr/bin/file',
-	'check_magic_sgml_ok': True,
-	'check_parser': True,
-	'syntax_file': 'Packages/XML/XML.tmLanguage',
-	'syntaxes_to_check': [
-		'Plain text.tmLanguage'
-	],
-}
+SETTINGS = 'xml-guesser.sublime-settings'
+DEFAULTS = { }
 
 class Options:
 	'''cleaner settings syntax with defaults'''
 	def __init__(self, settings, defaults):
-		self.name = settings
-		self.defaults = defaults
-		self.settings = sublime.load_settings(settings)
+		self._name = settings
+		self._defaults = defaults
+		self._settings = sublime.load_settings(settings)
+	def flush(self):
+		for k, v in self._defaults.iteritems():
+			if not self._settings.has(k):
+				self._settings.set(k, v)
+		sublime.save_settings(self._name)
 	def __getattr__(self, name):
-		if name in self.defaults:
-			return self.settings.get(name, self.defaults[name])
-		return self.settings.get(name)
+		if name in self._defaults:
+			return self._settings.get(name, self._defaults[name])
+		return self._settings.get(name)
 	def __setattr__(self, name, value):
-		if name in ('name','defaults','settings'):
+		if name in ('_name','_defaults','_settings'):
 			self.__dict__[name] = value
 			return
-		self.settings.set(name, value)
-		sublime.save_settings(self.name)
+		self._settings.set(name, value)
+		sublime.save_settings(self._name)
 
 opts = Options(SETTINGS, DEFAULTS)
+opts.flush()
 
 class XmlGuessListener(sublime_plugin.EventListener):
 	'''Look in the first few lines of the file for something resembling XML'''
@@ -65,9 +60,8 @@ class XmlGuessListener(sublime_plugin.EventListener):
 		'''easiest way, pattern matching on the head of the file'''
 		if not opts.check_xml_declaration: return False
 		lines = self.get_lines(view, opts.check_xml_declaration_lines)
-		endings = view.line_endings()
-		line = endings.join(lines).rstrip()
-		return line.startswith('<?xml') and line.endswith('?>')
+		line = '\n'.join(lines).rstrip()
+		return re.search(r'^<\?xml\s+version=[^>]+\?>', line, re.S | re.M | re.I) is not None
 
 	def magic(self, view):
 		'''open a pipe to /usr/bin/file and see what it says'''
