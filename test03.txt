@@ -1,0 +1,3 @@
+<!-- no declaration -->
+<!-- file reports this as SGML -->
+<text>Hello, world!</text>

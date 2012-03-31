@@ -1,0 +1,6 @@
+<!-- no declaration -->
+<!-- file reports this as SGML -->
+<!-- but it doesn't parse correctly -->
+text:
+	Hello, world!
+/text
