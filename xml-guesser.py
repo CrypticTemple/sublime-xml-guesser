@@ -17,7 +17,7 @@ DEFAULTS = {
 	"check_magic_sgml_ok": True,
 	"check_parser": True,
 	"check_xml_declaration": True,
-	"check_xml_declaration_lines": 3,
+	"check_xml_declaration_lines": 10,
 	"check_maximum_size": 1048576,
 	"syntax_file": "Packages/XML/XML.tmLanguage",
 	"syntaxes_to_check":
@@ -77,8 +77,14 @@ class XmlGuessListener(sublime_plugin.EventListener):
 		return view.substr(sublime.Region(0, view.size()))
 
 	def get_lines(self, view, maxlines = None):
-		text = sublime.Region(0, view.size())
+		# get a region up to max_size
+		size = view.size()
+		if opts.check_max_size > 0:
+			size = min(size, opts.check_max_size)
+		text = sublime.Region(0, size)
+		# split on newlines
 		lines = view.split_by_newlines(text)
+		# if set, truncate to maxlines
 		if maxlines is not None and maxlines > 0:
 			lines = lines[0:min(maxlines, len(lines))]
 		return [view.substr(reg) for reg in lines]
@@ -128,8 +134,13 @@ class XmlGuessListener(sublime_plugin.EventListener):
 
 	def on_load(self, view):
 		# first things first, if there's already a mode set, move on
-		if self.too_big(view) or not self.plain_syntax(view):
+		if not self.plain_syntax(view):
 			return
+		# provided it isn't too big...
+		if self.too_big(view):
+			return
+		# we can look for an xml declaration
+		# or attempt to parse it or pass it to file
 		if self.xml_declaration(view) \
 				or self.try_parse(view) \
 				or self.magic(view):
