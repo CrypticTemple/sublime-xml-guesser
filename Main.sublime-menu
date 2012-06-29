@@ -10,12 +10,12 @@
                 "id": "package-settings", 
                 "children": [
                     {
-                        "caption": "Word Count", 
+                        "caption": "XML Guesser", 
                         "children": [
                             {
                                 "caption": "Settings – Default", 
                                 "args": {
-                                    "file": "${packages}/xml-guesser/xml-guesser.sublime-settings"
+                                    "file": "${packages}/sublime-xml-guesser/xml-guesser.sublime-settings"
                                 }, 
                                 "command": "open_file"
                             }, 
